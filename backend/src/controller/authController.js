@@ -27,7 +27,7 @@ const postRegister = async (req, res, next) => {
         }
 
         //get random avatars
-        const profileImage = `https://api.dicebear.com/9.x/glass/svg?seed=${username}`;
+        const profileImage = `https://api.dicebear.com/9.x/glass/svg?seed=${encodeURIComponent(username)}`;
 
         const user = new User({
             username,
@@ -65,7 +65,11 @@ const postLogin = async (req, res, next) => {
             return res.status(400).json({ message: "All fields are requied" });
         }
 
-        const existingUser = await User.findOne({ $or: [{ username }, { email }]});
+        const lookupCondition = []
+        if(username) lookupCondition.push({ username });
+        if(email) lookupCondition.push({ email });
+
+        const existingUser = await User.findOne({ $or: lookupCondition});
         if (!existingUser) {
             return res.status(400).json({ message: "Invalid credentials" });
         }
