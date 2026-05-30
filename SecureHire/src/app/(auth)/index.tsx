@@ -19,7 +19,6 @@ const Index = () => {
 
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
-  const [isUsernameFocused, setIsUsernameFocused] = useState(false)
 
   const { isLoading, logIn } = useAuthStore();
 
@@ -38,27 +37,37 @@ const Index = () => {
   }
 
   const handleRegister = async (username: string, email: string, password: string) => {
-    if ( !email.trim() || !password.trim()) {
+    if (!email.trim() || !password.trim()) {
       Alert.alert("Error", "Please fill in all fields.")
       return;
     }
-    if(password.length < 6 ){
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+    if (!emailRegex.test(email)) {
+      Alert.alert("Error", "Please enter a valid email address.");
+    }
+    if (password.length < 10) {
       Alert.alert("Error", "Passwords must be atleast 6 characters")
       return;
     }
+    if (!/\d/.test(password)) Alert.alert("Error", "Password must contain atleast one number.");
+
+    if (!/[A-Z]/.test(password)) Alert.alert("Error", "Password must contain atleast one Uppercase letter.");
+
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) Alert.alert("Error", "Password must contain atleast one Special character.");
     if (!email.trim().includes('@')) {
       Alert.alert("Error", "Please enter an valid email")
       return;
     }
 
     router.navigate({
-      pathname : '/(auth)/(register)/Username',
+      pathname: '/(auth)/(register)/Username',
       params: { username }
     })
   }
 
   const isLoginFilled = text.length > 0 && password.length > 0
-  const isRegisterFilled =  email.length > 0 && password.length > 0;
+  const isRegisterFilled = email.length > 0 && password.length > 0;
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}

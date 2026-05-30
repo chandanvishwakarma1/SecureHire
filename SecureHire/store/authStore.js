@@ -9,7 +9,7 @@ export const useAuthStore = create((set) => ({
     isLoading: false,
     isCheckingAuth: true,
 
-    register: async (username, email, password) => {
+    register: async (otp, username, email, password) => {
         set({ isLoading: true })
         try {
             console.log(process.env.EXPO_PUBLIC_BACKEND_URL)
@@ -19,6 +19,7 @@ export const useAuthStore = create((set) => ({
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
+                    otp,
                     username,
                     email,
                     password
