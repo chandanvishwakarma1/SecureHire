@@ -11,7 +11,16 @@ const Username = () => {
 
     const fakeLoading = async() => {
         setLoading(true)
-        await new  Promise(resolve=> setTimeout(resolve, 500))
+        try {
+            const response = await fetch(`${EXPO_PUBLIC_BACKEND_URL}/user/checkUsername` ,{
+                method: "GET",
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+        } catch (error) {
+            
+        }
         setLoading(false);
     }
 
