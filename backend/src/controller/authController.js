@@ -17,6 +17,10 @@ const postRegister = async (req, res, next) => {
             return res.status(400).json({ message: "Username should be atleast 3 characters long. " });
         }
 
+        if (username.length > 20) {
+            return res.status(400).json({ message: "Username should be atmost 20 characters long. " });
+        }
+
         if (password.length < 6) {
             return res.status(400).json({ message: "Passwoord should be atleast 6 characters long. " });
         }
