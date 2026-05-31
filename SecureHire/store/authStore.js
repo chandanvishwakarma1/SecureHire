@@ -40,7 +40,7 @@ export const useAuthStore = create((set) => ({
             return ({ success: true })
         } catch (error) {
             set({isLoading: false})
-            return ({ success: false, error: error.message})
+            return ({ success: false, message: error.message})
         }
     },
 
@@ -72,10 +72,10 @@ export const useAuthStore = create((set) => ({
 
             set ({ token: data.token, user: data.user, isLoading: false })
 
-            return ({ success: true })
+            return ({ success: true, message: "Logged in successfully" })
         } catch (error) {
             set({ isLoading:false})
-            return ({ success: false, error: error.message})
+            return ({ success: false, message: error.message})
         }
     },
     logOut: async()=> {

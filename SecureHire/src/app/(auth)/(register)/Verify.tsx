@@ -1,4 +1,4 @@
-import { Alert, Keyboard, KeyboardAvoidingView, Platform, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
+import { ActivityIndicator, Alert, Keyboard, KeyboardAvoidingView, Platform, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
 import React, { useState } from 'react'
 import { useLoaderData, useLocalSearchParams, useRouter } from 'expo-router'
 import { ArrowLeft } from 'lucide-react-native'
@@ -18,8 +18,8 @@ const Verify = () => {
             return;
         }
         setIsFilled(true)
-        console.log(otp)
         const result = await register(otp, username, email, password)
+        if(!result.success) Alert.alert("Error", result.message || "Something went wrong. Please try again later.")
     }
     return (
         <KeyboardAvoidingView
@@ -63,8 +63,14 @@ const Verify = () => {
                                     }
                                 }}
                             />
-                            <TouchableOpacity disabled={isLoading} className={`items-center justify-center h-14 rounded-xl pr-3 ${isFilled ? 'bg-blue-400' : 'bg-gray-300'}`} onPress={()=>handleNext}  >
-                                <Text className='text-lg font-bold text-white'>Next</Text>
+                            <TouchableOpacity disabled={isLoading} className={`items-center justify-center h-14 rounded-xl pr-3 ${isFilled ? 'bg-blue-400' : 'bg-gray-300'} ${isLoading ? 'bg-gray-300' : 'bg-blue-400'}`} onPress={()=>handleNext}  >
+                                {
+                                    isLoading ? (
+                                        <ActivityIndicator size={'small'} color={'white'} />
+                                    ) : (
+                                        <Text className='text-lg font-bold text-white'>Next</Text>
+                                    )
+                                }
                             </TouchableOpacity>
                         </View>
                     </View>

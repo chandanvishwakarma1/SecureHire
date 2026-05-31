@@ -72,6 +72,7 @@ const postRegister = async (req, res, next) => {
             username,
             email,
             password,
+            fullName,
             profileImage,
             isVerified,
             verifiedAt: isVerified ? new Date() : null,
@@ -96,7 +97,7 @@ const postRegister = async (req, res, next) => {
 
     } catch (error) {
         console.log("Error registering user: ", error);
-        res.status(500).json({ message: "Internal server error" });
+        res.status(500).json({ message: error.message || "Internal server error" });
     }
 }
 const postRequestOtp = async (req, res, next) => {
@@ -124,7 +125,7 @@ const postRequestOtp = async (req, res, next) => {
         })
         await otp.save()
 
-        const subject = "Your verification code"
+        const subject = `${serverOtp} Your verification code`
         const to = email
         const html = otpTemplate({ otp: serverOtp, expiresIn: 10 });
         await sendEmail(subject, to, html);

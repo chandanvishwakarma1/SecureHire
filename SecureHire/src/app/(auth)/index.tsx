@@ -15,6 +15,7 @@ const Index = () => {
   const [isEmailFocused, setIsEmailFocused] = useState(false)
   const [selectedIndex, setSelectIndex] = useState(0)
   const [isPassFocused, setIsPassFocused] = useState(false)
+  const [signUpPass, setSignUpPass] = useState('')
   const [showPass, setShowPass] = useState(false)
   const [errors, setErrors] = useState<String[] | null>(null)
 
@@ -46,11 +47,11 @@ const Index = () => {
 
 
     const result = await logIn(userText.trim(), password.trim())
-    if (!result.success) Alert.alert("Login Failed", result.message || "Something went wrong. Please try again later.")
+    if (!result.success) {Alert.alert("Login Failed", result.message || "Something went wrong. Please try again later."); console.log(result.success,result.message)}
   }
 
   const handleRegister = async (username: string, email: string, password: string) => {
-    if (!email.trim() || !password.trim()) {
+    if (!email.trim() || !signUpPass.trim()) {
       Alert.alert("Error", "Please fill in all fields.")
       return;
     }
@@ -60,15 +61,15 @@ const Index = () => {
       setErrors(['Please enter an valid email'])
       return;
     }
-    if (password.length < 10) {
+    if (signUpPass.length < 10) {
       setErrors(['Password must be atleast 10 characters long.']);
       return;
     }
-    if (!/\d/.test(password)) { setErrors(['Password must contain atleast one number.']); return; };
+    if (!/\d/.test(signUpPass)) { setErrors(['Password must contain atleast one number.']); return; };
 
-    if (!/[A-Z]/.test(password)) { setErrors(['Password must contain atleast one Uppercase letter.']); return };
+    if (!/[A-Z]/.test(signUpPass)) { setErrors(['Password must contain atleast one Uppercase letter.']); return };
 
-    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) { setErrors(['Password must contain atleast one Special character.']); return };
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(signUpPass)) { setErrors(['Password must contain atleast one Special character.']); return };
     if (!email.trim().includes('@')) {
       Alert.alert("Error", "Please enter an valid email")
       return;
@@ -76,7 +77,7 @@ const Index = () => {
 
     router.navigate({
       pathname: '/(auth)/(register)/Username',
-      params: { username }
+      params: { email: email.trim(), signUpPass: signUpPass.trim()}
     })
   }
 
@@ -89,7 +90,7 @@ const Index = () => {
   }
 
   const isLoginFilled = text.length > 0 && password.length > 0
-  const isRegisterFilled = email.length > 0 && password.length > 0;
+  const isRegisterFilled = email.length > 0 && signUpPass.length > 0;
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -116,7 +117,7 @@ const Index = () => {
             )
           }
 
-          <View className='mb-14'>
+          <View className='mb-9'>
             <SegmentedControl
               values={['Login', 'Sign Up']}
               selectedIndex={selectedIndex}
@@ -227,6 +228,7 @@ const Index = () => {
                       value={email}
                       onChangeText={v => handleChangeInput(v, setEmail)}
                       autoCapitalize='none'
+                      keyboardType='email-address'
                       onFocus={() => setIsEmailFocused(true)}
                       onBlur={() => setIsEmailFocused(false)}
                     />
@@ -236,8 +238,8 @@ const Index = () => {
                     <TextInput
                       className='flex-1 text-base'
                       placeholder='Password'
-                      value={password}
-                      onChangeText={v => handleChangeInput(v, setPassword)}
+                      value={signUpPass}
+                      onChangeText={v => handleChangeInput(v, setSignUpPass)}
                       secureTextEntry={!showPass}
                       keyboardType='default'
                       autoCapitalize='none'

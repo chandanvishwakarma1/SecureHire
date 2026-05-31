@@ -1,4 +1,4 @@
-import { ActivityIndicator, Keyboard, KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
+import { ActivityIndicator, Alert, Keyboard, KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { ArrowLeft, Check, X } from 'lucide-react-native';
 import { useAuthStore } from '../../../../store/authStore';
@@ -10,6 +10,7 @@ const Username = () => {
     const [loading, setLoading] = useState(false);
     const [isAvailable, setIsAvailble] = useState<boolean | null>(null);
     const [error, setError] = useState<[] | null>(null)
+    const [otpLoading, setOtpLoading] = useState(false)
     const isFilled = username.length > 0
 
     useEffect(() => {
@@ -30,7 +31,7 @@ const Username = () => {
     }, [username])
     const router = useRouter();
     const params = useLocalSearchParams();
-    const email = params
+    const email = Array.isArray(params.email) ? params.email[0] : params.email;
     const checkUsername = async (currentUsername: string) => {
         // setLoading(true)
         try {
@@ -57,8 +58,8 @@ const Username = () => {
             setLoading(false)
         }
     }
-    const handleNext = async (userEmail: string) => {
-        setLoading(true)
+    const handleNext = async (userEmail: string, userName: string) => {
+        setOtpLoading(true)
         try {
             const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/auth/requestOtp`, {
                 method: "POST",
@@ -74,73 +75,81 @@ const Username = () => {
             if (!response.ok) throw new Error(data.message || 'Something went wrong')
 
             if (data.success) console.log(data.message)
-            setLoading(false)
-        } catch (error) {
+            setOtpLoading(false)
+        router.navigate({
+            pathname: '/(auth)/(register)/Verify',
+            params: { ...params, username: userName }
+        })
+        } catch (error: any) {
             console.log("Error requesting otp: ", error)
-            setLoading(false)
-        }
+            setOtpLoading(false)
+            Alert.alert("Error", `${error?.message || "Something went wrong"}. Please try again later.`)
+            return;
+        } 
     }
 
-    return (
-        <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            style={{ flex: 1 }}>
-            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-                <View className='flex-1 mx-6 '>
-                    <View className='flex-row py-4 items-center gap-4'>
-                        <TouchableOpacity onPress={() => router.back()}>
-                            <ArrowLeft />
-                        </TouchableOpacity>
-                        <Text className='font-semibold text-xl'>Username</Text>
-                    </View>
-                    <View className='flex-1 justify-start mt-9 gap-3'>
-                        <View className='mb-2 gap-2'>
-                            <Text className='text-3xl font-bold text-gray-900'>Choose a username</Text>
-                            <Text className='text-base text-gray-600'>This is how you will appear when flaggings fake listings or leaving employer reviews.</Text>
-                        </View>
-                        {
-                            error &&
-                            <Text className='text-red-400'>{error}</Text>
 
-                        }
-                        <View className={`border-2 flex-row items-center rounded-xl  px-3 justify-center h-14 ${isUsernameFocused ? 'border-black' : 'border-gray-300'}`}>
-                            <TextInput
-                                className='flex-1'
-                                placeholder='Username'
-                                value={username}
-                                onChangeText={setUsername}
-                                autoCapitalize='none'
-                                onFocus={() => setIsUsernameFocused(true)}
-                                onBlur={() => setIsUsernameFocused(false)} />
-                            {
-                                loading && (
-                                    <ActivityIndicator size='small' color='black' />
-                                )}
-                            {
-                                !loading && isAvailable === true && (
-                                    <Check color={"green"} size={20} />
-                                )
-                            }
-                            {
-                                !loading && isAvailable === false && (
-                                    <X color={"red"} size={20} />
-                                )
-                            }
-                        </View>
-                        <TouchableOpacity disabled={loading} className={`items-center justify-center h-14 rounded-xl pr-3 ${loading ? 'bg-gray-300' : 'bg-blue-400'} ${isFilled ? 'bg-blue-400' : 'bg-gray-300'}`} onPress={() => handleNext(email)}  >
-                            {
-                                loading ? (
-                                    <ActivityIndicator size={'small'} color={'white'} />
-                                ) : (
-                                    <Text className='text-lg font-bold text-white'>Next</Text>
-                                )
-                            }
-                        </TouchableOpacity>
-                    </View>
+return (
+    <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ flex: 1 }}>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <View className='flex-1 mx-6 '>
+                <View className='flex-row py-4 items-center gap-4'>
+                    <TouchableOpacity onPress={() => router.back()}>
+                        <ArrowLeft />
+                    </TouchableOpacity>
+                    <Text className='font-semibold text-xl'>Username</Text>
                 </View>
-            </TouchableWithoutFeedback>
-        </KeyboardAvoidingView >
-    )
+                <View className='flex-1 justify-start mt-9 gap-3'>
+                    <View className='mb-2 gap-2'>
+                        <Text className='text-3xl font-bold text-gray-900'>Choose a username</Text>
+                        <Text className='text-base text-gray-600'>This is how you will appear when flaggings fake listings or leaving employer reviews.</Text>
+                    </View>
+                    {
+                        error &&
+                        <Text className='text-red-400'>{error}</Text>
+
+                    }
+                    <View className={`border-2 flex-row items-center rounded-xl  px-3 justify-center h-14 ${isUsernameFocused ? 'border-black' : 'border-gray-300'}`}>
+                        <TextInput
+                            className='flex-1'
+                            placeholder='Username'
+                            value={username}
+                            onChangeText={setUsername}
+                            autoCapitalize='none'
+                            onFocus={() => setIsUsernameFocused(true)}
+                            onBlur={() => setIsUsernameFocused(false)} />
+                        {
+                            loading && (
+                                <ActivityIndicator size='small' color='black' />
+                            )}
+                        {
+                            !loading && isAvailable === true && (
+                                <Check color={"green"} size={20} />
+                            )
+                        }
+                        {
+                            !loading && isAvailable === false && (
+                                <X color={"red"} size={20} />
+                            )
+                        }
+                    </View>
+                    <TouchableOpacity className={`items-center justify-center h-14 rounded-xl pr-3 ${otpLoading ? 'bg-gray-300' : 'bg-blue-400'}  ${isFilled ? 'bg-blue-400' : 'bg-gray-300'}`} onPress={() => handleNext(email, username.trim())} disabled={otpLoading} >
+                        {
+                            otpLoading ? (
+                                <ActivityIndicator size={'small'} color={'white'} />
+                            ) : (
+
+                                <Text className='text-lg font-bold text-white'>Next</Text>
+                            )}
+
+                    </TouchableOpacity>
+                </View>
+            </View>
+        </TouchableWithoutFeedback>
+    </KeyboardAvoidingView >
+)
 }
 
 export default Username
