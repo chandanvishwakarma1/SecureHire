@@ -100,6 +100,26 @@ const postRegister = async (req, res, next) => {
         res.status(500).json({ message: error.message || "Internal server error" });
     }
 }
+const postCheckUser = async (req,res,next) => {
+    try {
+        const { email } = req.body;
+        if(!email) return res.status(400).json({ success:false,message: 'Email is required'})
+
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({ success:false, message: "Please enter a valid email address." });
+        }
+
+        const existingUser = await User.findOne({ email});
+        if(existingUser) return res.status(400).json({ success:false, message: "User already exists"})
+        
+        return res.json({ success: true, message: "User does not exists"})
+    } catch (error) {
+        console.log("Error checking user: ", error)
+        return res.status(500).json({ success: false, message: error.message || "Internal server error"})
+    }
+}
 const postRequestOtp = async (req, res, next) => {
     try {
         const { email, purpose } = req.body;
@@ -186,6 +206,7 @@ const postLogin = async (req, res, next) => {
 
 const authController = {
     postRegister,
+    postCheckUser,
     postLogin,
     postRequestOtp
 };

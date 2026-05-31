@@ -17,6 +17,7 @@ const Index = () => {
   const [isPassFocused, setIsPassFocused] = useState(false)
   const [signUpPass, setSignUpPass] = useState('')
   const [showPass, setShowPass] = useState(false)
+  const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState<String[] | null>(null)
 
   const [username, setUsername] = useState('');
@@ -47,7 +48,7 @@ const Index = () => {
 
 
     const result = await logIn(userText.trim(), password.trim())
-    if (!result.success) {Alert.alert("Login Failed", result.message || "Something went wrong. Please try again later."); console.log(result.success,result.message)}
+    if (!result.success) { Alert.alert("Login Failed", result.message || "Something went wrong. Please try again later."); console.log(result.success, result.message) }
   }
 
   const handleRegister = async (username: string, email: string, password: string) => {
@@ -74,11 +75,31 @@ const Index = () => {
       Alert.alert("Error", "Please enter an valid email")
       return;
     }
+    setLoading(true);
+    try {
+      const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/auth/checkUser`, {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email: email.trim() })
+      })
+      const data = await response.json()
+      if (!response.ok) throw new Error(data.message || "Something went wrong. Please try again later.")
 
-    router.navigate({
-      pathname: '/(auth)/(register)/Username',
-      params: { email: email.trim(), signUpPass: signUpPass.trim()}
-    })
+      setLoading(false)
+      router.navigate({
+        pathname: '/(auth)/(register)/Username',
+        params: { email: email.trim(), signUpPass: signUpPass.trim() }
+      })
+
+    } catch (error: any) {
+      setLoading(false)
+      console.log("Error checking user", error.message)
+      Alert.alert("Error", error.message || "Something went wrong. Please try again later.")
+      return;
+    }
+
   }
 
   const handleChangeInput = (value: string, setter: (v: string) => void) => {
@@ -252,9 +273,9 @@ const Index = () => {
                       }
                     </TouchableOpacity>
                   </View>
-                  <TouchableOpacity disabled={isLoading} className={`items-center justify-center h-14 rounded-xl pr-3 ${isLoading ? 'bg-gray-300' : 'bg-blue-400'} ${isRegisterFilled ? 'bg-blue-400' : 'bg-gray-300'}`} onPress={() => handleRegister(username, email, password)}>
+                  <TouchableOpacity disabled={isLoading} className={`items-center justify-center h-14 rounded-xl pr-3 ${isLoading ? 'bg-gray-300' : 'bg-blue-400'} {loading ? 'bg-gray-300' : 'bg-blue-400'} ${isRegisterFilled ? 'bg-blue-400' : 'bg-gray-300'}`} onPress={() => handleRegister(username, email, password)}>
                     {
-                      isLoading ? (
+                      isLoading || loading ? (
                         <ActivityIndicator size='small' color='white' />
                       ) : (
                         <Text className='text-lg font-bold text-white'>Sign Up</Text>
