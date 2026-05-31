@@ -35,5 +35,5 @@ const otpModelSchema = new mongoose.Schema({
 
 otpModelSchema.index({ email: 1, purpose: 1 }, { unique: true });
 
-const OtpModel = mongoose.model('OtpModel', otpModelSchema);
+const OtpModel = mongoose.models.OtpModel || mongoose.model('OtpModel', otpModelSchema);
 export default OtpModel;
