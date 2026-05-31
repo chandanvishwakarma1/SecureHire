@@ -2,7 +2,7 @@ import { sendEmail } from '../lib/email/email.js';
 import { verifyOtp } from '../lib/otp.js';
 import { generateOtp, hashOtp } from '../lib/otp.js';
 import otpTemplate from '../lib/email/templates/otp.js'
-import OtpModel from '../Models/OtpModel.js';
+import OtpModel from '../models/OtpModel.js';
 import User from '../models/User.js';
 import jwt from 'jsonwebtoken';
 
