@@ -16,6 +16,7 @@ const Index = () => {
   const [selectedIndex, setSelectIndex] = useState(0)
   const [isPassFocused, setIsPassFocused] = useState(false)
   const [showPass, setShowPass] = useState(false)
+  const [errors, setErrors] = useState<String[] | null>(null)
 
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
@@ -32,8 +33,20 @@ const Index = () => {
       Alert.alert("Error", "Pleaase fill in all fields.");
       return;
     }
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+    if (userText.includes('@') && !emailRegex.test(userText)) {
+      setErrors(['Please enter an valid email'])
+      return;
+    }
+    if (password.length < 10) {
+      setErrors(['Password must be atleast 10 characters long.']);
+      return;
+    }
+
+
     const result = await logIn(userText.trim(), password.trim())
-    if (!result.success) Alert.alert("Login Failed", "Something went wrong. Please try again later.")
+    if (!result.success) Alert.alert("Login Failed", result.message || "Something went wrong. Please try again later.")
   }
 
   const handleRegister = async (username: string, email: string, password: string) => {
@@ -44,17 +57,18 @@ const Index = () => {
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
     if (!emailRegex.test(email)) {
-      Alert.alert("Error", "Please enter a valid email address.");
-    }
-    if (password.length < 10) {
-      Alert.alert("Error", "Passwords must be atleast 6 characters")
+      setErrors(['Please enter an valid email'])
       return;
     }
-    if (!/\d/.test(password)) Alert.alert("Error", "Password must contain atleast one number.");
+    if (password.length < 10) {
+      setErrors(['Password must be atleast 10 characters long.']);
+      return;
+    }
+    if (!/\d/.test(password)) { setErrors(['Password must contain atleast one number.']); return; };
 
-    if (!/[A-Z]/.test(password)) Alert.alert("Error", "Password must contain atleast one Uppercase letter.");
+    if (!/[A-Z]/.test(password)) { setErrors(['Password must contain atleast one Uppercase letter.']); return };
 
-    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) Alert.alert("Error", "Password must contain atleast one Special character.");
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) { setErrors(['Password must contain atleast one Special character.']); return };
     if (!email.trim().includes('@')) {
       Alert.alert("Error", "Please enter an valid email")
       return;
@@ -64,6 +78,14 @@ const Index = () => {
       pathname: '/(auth)/(register)/Username',
       params: { username }
     })
+  }
+
+  const handleChangeInput = (value: string, setter: (v: string) => void) => {
+    setter(value)
+    if (errors) {
+      setErrors(null)
+    }
+
   }
 
   const isLoginFilled = text.length > 0 && password.length > 0
@@ -76,7 +98,7 @@ const Index = () => {
         <View className='flex-1 mx-6  justify-center'>
 
           {/* Logo */}
-          <View className='flex-row mb-12 gap-3 items-center'>
+          <View className={`flex-row  gap-3 items-center ${selectedIndex === 0 ? 'mb-12' : 'mb-6'}`}>
             <Logo height={'26'} width={'26'} />
             <Text className='text-3xl font-bold'>SecureHire</Text>
           </View>
@@ -94,7 +116,7 @@ const Index = () => {
             )
           }
 
-          <View className='mb-3'>
+          <View className='mb-14'>
             <SegmentedControl
               values={['Login', 'Sign Up']}
               selectedIndex={selectedIndex}
@@ -110,25 +132,33 @@ const Index = () => {
           {
             selectedIndex === 0 ? (
               <View className='w-full gap-3'>
+                {
+                  errors && (
+                    <View>
+                      <Text>{errors.map((error, index) => <Text className='text-red-400' key={index}>{error}</Text>)}</Text>
+                    </View>
+                  )
+                }
                 <View className={`border-2  rounded-xl  px-3 justify-center h-14 ${isEmailFocused ? 'border-black' : 'border-gray-300'}`}>
                   <TextInput
                     focusable
                     className='w-full text-base'
                     placeholder='Username or Email'
                     value={text}
-                    onChangeText={setText}
+                    onChangeText={v => handleChangeInput(v, setText)}
                     keyboardType='email-address'
                     autoCapitalize='none'
                     onFocus={() => setIsEmailFocused(true)}
                     onBlur={() => setIsEmailFocused(false)}
                   />
                 </View>
+
                 <View className={`border-2  rounded-xl px-3 justify-center h-14 flex-row items-center ${isPassFocused ? 'border-black' : 'border-gray-300'}`}>
                   <TextInput
                     className='flex-1 text-base'
                     placeholder='Password'
                     value={password}
-                    onChangeText={setPassword}
+                    onChangeText={v => handleChangeInput(v, setPassword)}
                     secureTextEntry={!showPass}
                     keyboardType='default'
 
@@ -184,11 +214,18 @@ const Index = () => {
             ) : (
               <View>
                 <View className='w-full gap-3'>
+                  {
+                    errors && (
+                      <View>
+                        <Text>{errors.map((error, index) => <Text className='text-red-400' key={index}>{error}</Text>)}</Text>
+                      </View>
+                    )
+                  }
                   <View className={`border-2  rounded-xl  px-3 justify-center h-14 ${isEmailFocused ? 'border-black' : 'border-gray-300'}`}>
                     <TextInput
                       placeholder='Email'
                       value={email}
-                      onChangeText={setEmail}
+                      onChangeText={v => handleChangeInput(v, setEmail)}
                       autoCapitalize='none'
                       onFocus={() => setIsEmailFocused(true)}
                       onBlur={() => setIsEmailFocused(false)}
@@ -200,7 +237,7 @@ const Index = () => {
                       className='flex-1 text-base'
                       placeholder='Password'
                       value={password}
-                      onChangeText={setPassword}
+                      onChangeText={v => handleChangeInput(v, setPassword)}
                       secureTextEntry={!showPass}
                       keyboardType='default'
                       autoCapitalize='none'
