@@ -1,6 +1,6 @@
 //Internal module
 import crypto from 'crypto';
-import OtpModel from '../Models/OtpModel.js';
+import OtpModel from '../models/OtpModel.js';
 
 export const generateOtp = () => {
     return Math.floor(100000 + Math.random() * 900000).toString(); //6 digits
