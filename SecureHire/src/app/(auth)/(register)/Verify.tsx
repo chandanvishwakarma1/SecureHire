@@ -8,9 +8,9 @@ import { useAuthStore } from '../../../../store/authStore'
 const Verify = () => {
     const router = useRouter()
     const params = useLocalSearchParams();
-    const { email, username, password, } = params
     const [isFilled, setIsFilled] = useState(false)
     const { isLoading, register } = useAuthStore();
+    const { username,email,password,fullName} = params;
 
     const handleNext = async (otp: string) => {
         if (!otp) {
@@ -18,7 +18,7 @@ const Verify = () => {
             return;
         }
         setIsFilled(true)
-        const result = await register(otp, username, email, password)
+        const result = await register(otp, username, email, password, fullName)
         if(!result.success) Alert.alert("Error", result.message || "Something went wrong. Please try again later.")
     }
     return (

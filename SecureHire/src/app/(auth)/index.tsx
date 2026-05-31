@@ -273,7 +273,7 @@ const Index = () => {
                       }
                     </TouchableOpacity>
                   </View>
-                  <TouchableOpacity disabled={isLoading} className={`items-center justify-center h-14 rounded-xl pr-3 ${isLoading ? 'bg-gray-300' : 'bg-blue-400'} {loading ? 'bg-gray-300' : 'bg-blue-400'} ${isRegisterFilled ? 'bg-blue-400' : 'bg-gray-300'}`} onPress={() => handleRegister(username, email, password)}>
+                  <TouchableOpacity disabled={isLoading} className={`items-center justify-center h-14 rounded-xl pr-3 ${isLoading ? 'bg-gray-300' : 'bg-blue-400'} ${loading ? 'bg-gray-300' : 'bg-blue-400'} ${isRegisterFilled ? 'bg-blue-400' : 'bg-gray-300'}`} onPress={() => handleRegister(username, email, password)}>
                     {
                       isLoading || loading ? (
                         <ActivityIndicator size='small' color='white' />
