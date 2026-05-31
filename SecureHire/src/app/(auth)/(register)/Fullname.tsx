@@ -14,6 +14,7 @@ const Username = () => {
    
     const router = useRouter();
     const params = useLocalSearchParams();
+    const {username,password} = params
     const email = Array.isArray(params.email) ? params.email[0] : params.email;
     
     const handleNext = async (userEmail: string, userFullName: string) => {
@@ -43,7 +44,10 @@ const Username = () => {
             setOtpLoading(false)
         router.navigate({
             pathname: '/(auth)/(register)/Verify',
-            params: { ...params, fullName: userFullName }
+            params: {
+                username,
+                email,password, 
+                fullName: userFullName.trim()}
         })
         } catch (error: any) {
             console.log("Error requesting otp: ", error)

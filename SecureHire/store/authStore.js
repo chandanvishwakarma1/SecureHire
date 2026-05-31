@@ -19,7 +19,7 @@ export const useAuthStore = create((set) => ({
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    otp,
+                    userOtp: otp,
                     username,
                     fullName,
                     email,

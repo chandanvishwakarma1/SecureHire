@@ -8,16 +8,25 @@ import { useAuthStore } from '../../../../store/authStore'
 const Verify = () => {
     const router = useRouter()
     const params = useLocalSearchParams();
-    const [isFilled, setIsFilled] = useState(false)
     const { isLoading, register } = useAuthStore();
-    const { username,email,password,fullName} = params;
+    const [otpCode, setOtpCode] = useState('')
+    const getStringParam = (param: string | string[] | undefined): string => {
+        if(!param) return '';
+
+        return Array.isArray(param) ? param[0] : param
+    }
+
+    const username = getStringParam(params.username)
+    const email = getStringParam(params.email)
+    const password = getStringParam(params.password)
+    const fullName = getStringParam(params.fullName)
 
     const handleNext = async (otp: string) => {
+        console.log("store: ", otp,username, email,password,fullName)
         if (!otp) {
             Alert.alert("Error", "Please fill in detail first.")
             return;
         }
-        setIsFilled(true)
         const result = await register(otp, username, email, password, fullName)
         if(!result.success) Alert.alert("Error", result.message || "Something went wrong. Please try again later.")
     }
@@ -50,8 +59,9 @@ const Verify = () => {
                                 disabled={false}
                                 type='numeric'
                                 secureTextEntry={false}
+                                onTextChange={(text)=> setOtpCode(text)}
                                 focusStickBlinkingDuration={600}
-                                onFilled={(text) => handleNext(text)}
+                                onFilled={(text) => {setOtpCode(text); handleNext(text)}}
                                 theme={{
                                     containerStyle: {
                                         width: '100%',
@@ -63,7 +73,9 @@ const Verify = () => {
                                     }
                                 }}
                             />
-                            <TouchableOpacity disabled={isLoading} className={`items-center justify-center h-14 rounded-xl pr-3 ${isFilled ? 'bg-blue-400' : 'bg-gray-300'} ${isLoading ? 'bg-gray-300' : 'bg-blue-400'}`} onPress={()=>handleNext}  >
+                            <TouchableOpacity 
+                            disabled={isLoading || otpCode.length < 6} 
+                            className={`items-center justify-center h-14 rounded-xl pr-3 ${otpCode.length === 6  ? 'bg-blue-400' : 'bg-gray-300'} ${isLoading ? 'bg-gray-300' : 'bg-blue-400'}`} onPress={()=>handleNext(otpCode)}  >
                                 {
                                     isLoading ? (
                                         <ActivityIndicator size={'small'} color={'white'} />

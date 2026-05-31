@@ -90,7 +90,7 @@ const Index = () => {
       setLoading(false)
       router.navigate({
         pathname: '/(auth)/(register)/Username',
-        params: { email: email.trim(), signUpPass: signUpPass.trim() }
+        params: { email: email.trim(), password: signUpPass.trim() }
       })
 
     } catch (error: any) {
